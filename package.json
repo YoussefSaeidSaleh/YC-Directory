@@ -6,22 +6,50 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "predev": "npm run typegen",
+    "prebuild": "npm run typegen",
+    "typegen": "sanity schema extract --path=./sanity/extract.json && sanity typegen generate"
   },
-  "dependencies": {
-    "next": "16.0.5",
+  "packageManager": "npm@10.9.4",
+  "overrides": {
     "react": "19.2.0",
     "react-dom": "19.2.0"
   },
+  "dependencies": {
+    "@portabletext/react": "^6.0.0",
+    "@radix-ui/react-slot": "^1.2.4",
+    "@sanity/client": "^7.13.2",
+    "@sanity/vision": "^4.21.1",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "dotenv": "^17.2.3",
+    "easymde": "^2.20.0",
+    "lucide-react": "^0.555.0",
+    "next": "16.0.5",
+    "next-auth": "^5.0.0-beta.30",
+    "next-sanity": "^11.6.10",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "sanity": "^4.21.1",
+    "sanity-plugin-markdown": "^7.0.4",
+    "server-only": "^0.0.1",
+    "styled-components": "^6.1.19",
+    "tailwind-merge": "^3.4.0"
+  },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4",
+    "@tailwindcss/typography": "^0.5.19",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "autoprefixer": "^10.4.16",
     "babel-plugin-react-compiler": "1.0.0",
+    "baseline-browser-mapping": "^2.9.7",
     "eslint": "^9",
     "eslint-config-next": "16.0.5",
-    "tailwindcss": "^4",
+    "postcss": "^8.4.32",
+    "tailwindcss": "^3.4.0",
+    "tailwindcss-animate": "^1.0.7",
     "typescript": "^5"
   }
 }
