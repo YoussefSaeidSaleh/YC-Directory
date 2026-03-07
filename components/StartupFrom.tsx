@@ -10,7 +10,9 @@ import { Send } from "lucide-react";
 const StartupFrom = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [pitch, setPitch] = React.useState("");
-  const [state, formAction, isPending] = useActionState();
+  const handleFormSubmit = () => {};
+  const [state, formAction, isPending] = useActionState(handleFormSubmit, {erorr:"", status: "INITIAL"});
+  
   return (
     <form action={() => {}} className="startup-form">
       <div>
