@@ -11,7 +11,11 @@ export const formSchema = z.object({
         
         if (contentType?.startsWith("image/")) {
             return true;
+        } else {
+            return false;
         }
+    } catch {
+        return false
     }
   })
 });
