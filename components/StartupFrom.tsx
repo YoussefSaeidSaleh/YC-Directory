@@ -32,13 +32,15 @@ const StartupFrom = () => {
 
       // const result = await createIdea(prevState, formData, pitch);
       // console.log(resutl)
-      if (Result.status == "SUCCESS") {
-        toast({
-          title: "Success",
-          description: "Your startup pitch has been created successfully",
-        });
-              router.push(`/startup/${result.id}`);
-      }
+      // if (Result.status == "SUCCESS") {
+      //   toast({
+      //     title: "Success",
+      //     description: "Your startup pitch has been created successfully",
+      //   });
+      //         router.push(`/startup/${result.id}`);
+      // }
+
+      // return result
 
     } catch (erorr) {
       if (erorr instanceof z.ZodError) {
