@@ -22,14 +22,14 @@ const StartupFrom = () => {
     try {
       const formValues = {
         title: formData.get("title") as string,
-        discription: formData.get("description") as string,
+        description: formData.get("description") as string,
         category: formData.get("category") as string,
         link: formData.get("link") as string,
         pitch,
       };
 
       await formSchema.parseAsync(formValues);
-      console.log(`formValues => ${formValues}`);
+      console.log("formValues => ", formValues);
 
       // const result = await createIdea(prevState, formData, pitch);
       // console.log(resutl)
@@ -42,12 +42,10 @@ const StartupFrom = () => {
       // }
 
       // return result
-      
-
-    } catch (erorr) {
-      if (erorr instanceof z.ZodError) {
-        const fieldErorrs = error.flatten().fieldErrors;
-        setErrors(fieldErorrs as unknown as Record<string, string>);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const fieldErrors = error.flatten().fieldErrors;
+        setErrors(fieldErrors as unknown as Record<string, string>);
 
         toast({
           title: "Error",
@@ -103,7 +101,7 @@ const StartupFrom = () => {
           name="description"
           className="startup-form_textarea"
           required
-          placeholder="Startup description"
+          placeholder="Startup Description"
         />
 
         {errors.description && (
