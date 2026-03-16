@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import React, { useActionState, useState } from "react";
@@ -30,17 +31,18 @@ const StartupFrom = () => {
       await formSchema.parseAsync(formValues);
       console.log(`formValues => ${formValues}`);
 
-      const result = await createIdea(prevState, formData, pitch);
-      console.log(resutl)
-      if (Result.status == "SUCCESS") {
-        toast({
-          title: "Success",
-          description: "Your startup pitch has been created successfully",
-        });
-              router.push(`/startup/${result.id}`);
-      }
+      // const result = await createIdea(prevState, formData, pitch);
+      // console.log(resutl)
+      // if (Result.status == "SUCCESS") {
+      //   toast({
+      //     title: "Success",
+      //     description: "Your startup pitch has been created successfully",
+      //   });
+      //         router.push(`/startup/${result.id}`);
+      // }
 
-      return result
+      // return result
+      
 
     } catch (erorr) {
       if (erorr instanceof z.ZodError) {
