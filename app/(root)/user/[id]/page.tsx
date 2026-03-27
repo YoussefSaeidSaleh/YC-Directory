@@ -1,9 +1,10 @@
-import React from 'react'
+import React from "react";
 
-const page = () => {
-  return (
-    <div>page</div>
-  )
-}
+const page = async ({ params }: { params: Promise<{ id: string }> }) => {
+  const id = (await params).id;
+  console.log("id =>", id);
 
-export default page
+  return <div>pagesdfsd</div>;
+};
+
+export default page;
