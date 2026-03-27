@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
@@ -11,6 +12,7 @@ import { formSchema } from "@/lib/validation";
 import z from "zod";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
+import { createPitch } from "@/lib/actions";
 
 const StartupFrom = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -22,32 +24,29 @@ const StartupFrom = () => {
     try {
       const formValues = {
         title: formData.get("title") as string,
-        discription: formData.get("description") as string,
+        description: formData.get("description") as string,
         category: formData.get("category") as string,
         link: formData.get("link") as string,
         pitch,
       };
 
       await formSchema.parseAsync(formValues);
-      console.log(`formValues => ${formValues}`);
 
-      // const result = await createIdea(prevState, formData, pitch);
-      // console.log(resutl)
-      // if (Result.status == "SUCCESS") {
-      //   toast({
-      //     title: "Success",
-      //     description: "Your startup pitch has been created successfully",
-      //   });
-      //         router.push(`/startup/${result.id}`);
-      // }
+      const result = await createPitch(prevState, formData, pitch);
 
-      // return result
-      
+      if (result.status == "SUCCESS") {
+        toast({
+          title: "Success",
+          description: "Your startup pitch has been created successfully",
+        });
+        router.push(`/startup/${result._id}`);
+      }
 
-    } catch (erorr) {
-      if (erorr instanceof z.ZodError) {
-        const fieldErorrs = error.flatten().fieldErrors;
-        setErrors(fieldErorrs as unknown as Record<string, string>);
+      return result;
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const fieldErrors = error.flatten().fieldErrors;
+        setErrors(fieldErrors as unknown as Record<string, string>);
 
         toast({
           title: "Error",
@@ -103,7 +102,7 @@ const StartupFrom = () => {
           name="description"
           className="startup-form_textarea"
           required
-          placeholder="Startup description"
+          placeholder="Startup Description"
         />
 
         {errors.description && (
