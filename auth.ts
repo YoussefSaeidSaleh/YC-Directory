@@ -13,27 +13,19 @@ type GitHubProfile = {
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [GitHub],
   callbacks: {
-    async signIn({
-      user: { name, email, image },
-      profile,
-    }) {
-      if (!profile) {
-        return false;
-      }
-
+    async signIn({ user: { name, email, image }, profile }) {
       const { id, login, bio } = profile as GitHubProfile;
-      const githubId = String(id);
 
       const existingUser = await client
         .withConfig({ useCdn: false })
         .fetch(AUTHOR_BY_GITHUB_ID_QUERY, {
-          id: githubId,
+          id,
         });
 
       if (!existingUser) {
         await writeClient.create({
           _type: "author",
-          id: githubId,
+          id,
           name,
           username: login,
           email,
@@ -58,7 +50,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       return token;
     },
     async session({ session, token }) {
-      Object.assign(session, { id: token.id });
+      session.user.id = token.id as string;
       return session;
     },
   },
