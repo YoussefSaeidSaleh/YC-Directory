@@ -8,7 +8,13 @@ Sentry.init({
   dsn: "https://a37baa368c54e0ce5fe909e2dec3750c@o4511056231661568.ingest.de.sentry.io/4511090061541456",
 
   // Add optional integrations for additional features
-  integrations: [Sentry.replayIntegration()],
+  integrations: [
+    Sentry.replayIntegration(),
+    Sentry.feedbackIntegration({
+      // Additional SDK configuration goes in here, for example:
+      colorScheme: "system",
+    }),
+  ],
 
   // Define how likely traces are sampled. Adjust this value in production, or use tracesSampler for greater control.
   tracesSampleRate: 1,
