@@ -1,7 +1,7 @@
 import StartupCard, { StartupTypeCard } from "@/components/StartupCard";
 import SearchForm from "../../components/SearchForm";
 import { STARTUPS_QUERY } from "@/sanity/lib/queries";
-import { sanityFetch, SanityLive } from "@/sanity/lib/live";
+import { sanityFetch } from "@/sanity/lib/live";
 import { auth } from "@/auth";
 
 export default async function Home({
@@ -13,6 +13,7 @@ export default async function Home({
   const params = { search: query || null };
 
   const session = await auth();
+  console.log("session =>", session?.id);
 
   const { data: posts } = await sanityFetch({ query: STARTUPS_QUERY, params });
 
@@ -20,7 +21,7 @@ export default async function Home({
     <>
       <section className="pink_container">
         <h1 className="heading">
-          Pitch Your Startup, <br />Connect With Entrepreneurs
+          Pitch Your Startup, <br /> Connect With Entrepreneurs
         </h1>
 
         <p className="sub-heading !max-w-3xl">
@@ -45,8 +46,6 @@ export default async function Home({
           )}
         </ul>
       </section>
-
-      <SanityLive />
     </>
   );
 }

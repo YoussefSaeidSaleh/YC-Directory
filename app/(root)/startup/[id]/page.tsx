@@ -11,11 +11,7 @@ import View from "@/components/View";
 
 const md = markdownit();
 
-export const experimental_ppr = true;
-
-const page = async ({ params }: { params: Promise<{ id: string }> }) => {
-  const id = (await params).id;
-
+async function StartupContent({ id }: { id: string }) {
   const post = await client.fetch(STARTUP_BY_ID_QUERY, { id });
 
   if (!post) return notFound();
@@ -32,7 +28,7 @@ const page = async ({ params }: { params: Promise<{ id: string }> }) => {
 
       <section className="section_container">
         <img
-          src={post.image}
+          src={post.image || "/startup-placeholder.png"}
           alt="thumbnail"
           className="w-full h-auto rounded-xl"
         />
@@ -44,7 +40,7 @@ const page = async ({ params }: { params: Promise<{ id: string }> }) => {
               className=" flex gap-2 items-center mb-3"
             >
               <Image
-                src={post.author.image}
+                src={post.author?.image || "/user-placeholder.png"}
                 alt="avatar"
                 width={64}
                 height={64}
@@ -52,8 +48,8 @@ const page = async ({ params }: { params: Promise<{ id: string }> }) => {
               />
 
               <div>
-                <p className=" text-20-medium">{post.author.name}</p>
-                <p className=" text-16-medium">@{post.author.username}</p>
+                <p className=" text-20-medium">{post.author?.name || "Unknown"}</p>
+                <p className=" text-16-medium">@{post.author?.username || "unknown"}</p>
               </div>
             </Link>
 
@@ -72,14 +68,44 @@ const page = async ({ params }: { params: Promise<{ id: string }> }) => {
         </div>
 
         <hr className="divider" />
-
-        {/* TODO:  EDITOR SELECTED STARTUPS */}
       </section>
 
-      <Suspense fallback={<Skeleton className="view_skeleton" />}>
-        <View id={id} />
-      </Suspense>
+      <View id={id} />
     </>
+  );
+}
+
+function StartupContentFallback() {
+  return (
+    <>
+      <section className="pink_container !min-h-[230px]">
+        <Skeleton className="h-4 w-20" />
+        <Skeleton className="h-10 w-3/4 mt-2" />
+        <Skeleton className="h-6 w-1/2 mt-2" />
+      </section>
+
+      <section className="section_container">
+        <Skeleton className="h-64 w-full" />
+        <div className="space-y-5 mt-10 max-w-4xl mx-auto">
+          <div className="flex-between gap-5">
+            <Skeleton className="h-16 w-16 rounded-full" />
+            <Skeleton className="h-6 w-24" />
+          </div>
+          <Skeleton className="h-8 w-40" />
+          <Skeleton className="h-32 w-full" />
+        </div>
+      </section>
+    </>
+  );
+}
+
+const page = async ({ params }: { params: Promise<{ id: string }> }) => {
+  const id = (await params).id;
+
+  return (
+    <Suspense fallback={<StartupContentFallback />}>
+      <StartupContent id={id} />
+    </Suspense>
   );
 };
 
