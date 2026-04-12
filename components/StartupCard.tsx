@@ -52,7 +52,7 @@ const StartupCard = ({ post }: { post: StartupTypeCard }) => {
 
       <Link href={`/startup/${_id}`}>
         <p className="startup-card_desc">{description}</p>
-        <img src={image || "/startup-placeholder.png"} alt="startup" className="startup-card_img" />
+        <img src={image} alt="startup" className="startup-card_img" />
       </Link>
 
       <div className="flex-between gap-3 mt-5">
@@ -69,7 +69,7 @@ const StartupCard = ({ post }: { post: StartupTypeCard }) => {
 
 export const StartupCardSkeleton = () => (
   <>
-    {[0, 1, 2, 3].map((index: number) => (
+    {[0, 1, 2, 3, 4, 5 ].map((index: number) => (
       <li key={cn("skeleton", index)}>
         <Skeleton className="startup-card_skeleton" />
       </li>

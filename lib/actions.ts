@@ -6,7 +6,7 @@ import slugify from "slugify";
 import { writeClient } from "@/sanity/lib/write-client";
 
 export const createPitch = async (
-  state: any,
+  _state: unknown,
   form: FormData,
   pitch: string,
 ) => {
@@ -56,4 +56,12 @@ export const createPitch = async (
       status: "ERROR",
     });
   }
+};
+
+export const incrementStartupViews = async (id: string) => {
+  if (!id) {
+    throw new Error("Startup id is required");
+  }
+
+  await writeClient.patch(id).setIfMissing({ views: 0 }).inc({ views: 1 }).commit();
 };

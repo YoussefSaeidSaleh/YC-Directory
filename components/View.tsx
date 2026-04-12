@@ -1,48 +1,95 @@
-import React, { Suspense } from "react";
-import Ping from "./Ping";
-import { client } from "@/sanity/lib/client";
-import { STARTUP_VIEWS_QUERY } from "@/sanity/lib/queries";
-import { writeClient } from "@/sanity/lib/write-client";
-import { Skeleton } from "./ui/skeleton";
+"use client";
 
-async function ViewContent({ id }: { id: string }) {
-  const { views: totalViews } = await client
-    .withConfig({ useCdn: false })
-    .fetch(STARTUP_VIEWS_QUERY, { id });
+import Ping from "@/components/Ping";
+import { incrementStartupViews } from "@/lib/actions";
+import { useEffect, useState } from "react";
 
-  if (typeof window === "undefined") {
-    const { after } = await import("next/server");
-    after(async () => {
-      await writeClient.patch(id).set({ views: totalViews + 1 }).commit();
-    });
+const VIEW_LOCK_CLEANUP_DELAY_MS = 1500;
+
+type ActiveVisitEntry = {
+  cleanupTimer?: ReturnType<typeof setTimeout>;
+  displayedViews: number;
+};
+
+const activeVisits = new Map<string, ActiveVisitEntry>();
+
+const getInitialDisplayedViews = (id: string, initialViews: number) => {
+  const activeVisit = activeVisits.get(id);
+  return activeVisit ? Math.max(activeVisit.displayedViews, initialViews) : initialViews;
+};
+
+const clearScheduledCleanup = (activeVisit: ActiveVisitEntry) => {
+  if (!activeVisit.cleanupTimer) {
+    return;
   }
 
+  clearTimeout(activeVisit.cleanupTimer);
+  activeVisit.cleanupTimer = undefined;
+};
+
+const View = ({
+  id,
+  initialViews,
+}: {
+  id: string;
+  initialViews: number;
+}) => {
+  const [views, setViews] = useState(() => getInitialDisplayedViews(id, initialViews));
+
+  useEffect(() => {
+    const existingVisit = activeVisits.get(id);
+
+    if (existingVisit) {
+      clearScheduledCleanup(existingVisit);
+
+      return () => {
+        existingVisit.cleanupTimer = setTimeout(() => {
+          activeVisits.delete(id);
+        }, VIEW_LOCK_CLEANUP_DELAY_MS);
+      };
+    }
+
+    const nextViews = initialViews + 1;
+    const activeVisit: ActiveVisitEntry = {
+      displayedViews: nextViews,
+    };
+
+    activeVisits.set(id, activeVisit);
+
+    const incrementView = async () => {
+      setViews(nextViews);
+
+      try {
+        await incrementStartupViews(id);
+        activeVisit.displayedViews = nextViews;
+      } catch (error) {
+        activeVisits.delete(id);
+        setViews(initialViews);
+        console.error("Failed to increment startup views", error);
+      }
+    };
+
+    void incrementView();
+
+    return () => {
+      activeVisit.cleanupTimer = setTimeout(() => {
+        activeVisits.delete(id);
+      }, VIEW_LOCK_CLEANUP_DELAY_MS);
+    };
+  }, [id, initialViews]);
+
   return (
-    <div className="view-container mr-40">
-      <div className="absolute -top2 -right-2">
+    <div className="view-container mr-32">
+      <div className="absolute top-2 -right-2">
         <Ping />
       </div>
 
       <p className="view-text">
-        <span className="font-black">Views: {totalViews}</span>
+        <span className="font-black" suppressHydrationWarning>
+          Views: {views}
+        </span>
       </p>
     </div>
-  );
-}
-
-function ViewFallback() {
-  return (
-    <div className="view-container">
-      <Skeleton className="h-6 w-20" />
-    </div>
-  );
-}
-
-const View = ({ id }: { id: string }) => {
-  return (
-    <Suspense fallback={<ViewFallback />}>
-      <ViewContent id={id} />
-    </Suspense>
   );
 };
 
