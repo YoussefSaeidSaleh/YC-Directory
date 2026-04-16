@@ -4,6 +4,7 @@ import UserStartups from "@/components/UserStartups";
 import { client } from "@/sanity/lib/client";
 import { AUTHOR_BY_ID_QUERY } from "@/sanity/lib/queries";
 import { cacheLife } from "next/cache";
+import { connection } from "next/server";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
@@ -44,8 +45,8 @@ async function UserProfileContent({ id }: { id: string }) {
         </div>
 
         <Image
-          src={user.image}
-          alt={user.name}
+          src={user.image || ""}
+          alt={user.name || ""}
           width={220}
           height={220}
           className="profile_image"
@@ -76,6 +77,8 @@ const UserPageContent = async ({
 }: {
   params: Promise<{ id: string }>;
 }) => {
+  await connection();
+
   const { id } = await params;
 
   return <UserProfileContent id={id} />;

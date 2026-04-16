@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { connection } from "next/server";
 import { client, freshClient } from "@/sanity/lib/client";
 import {
   PLAYLIST_BY_SLUG_QUERY,
@@ -33,6 +34,8 @@ const StartupPageContent = async ({
 }: {
   params: Promise<{ id: string }>;
 }) => {
+  await connection();
+
   const { id } = await params;
 
   const [post, editorPosts] = await Promise.all([
