@@ -25,10 +25,5 @@ export default withSentryConfig(nextConfig, {
   project: "javascript-nextjs",
   silent: !process.env.CI,
   widenClientFileUpload: true,
-  reactComponentAnnotation: {
-    enabled: true,
-  },
-  hideSourceMaps: true,
-  disableLogger: true,
-  automaticVercelMonitors: true,
+  // ✅ No webpack-specific options here
 });
