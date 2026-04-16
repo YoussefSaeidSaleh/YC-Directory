@@ -2,17 +2,17 @@
   "name": "my-app",
   "version": "0.1.0",
   "private": true,
- "scripts": {
-  "dev": "next dev --webpack",
-  "dev:turbopack": "next dev",
-  "dev:sentry": "next dev --webpack",
-  "build": "next build",
-  "start": "next start",
-  "lint": "eslint",
-  "predev": "npm run typegen",
-  "prebuild": "npm run typegen",
-  "typegen": "sanity schema extract --path=./sanity/extract.json && sanity typegen generate"
-},
+  "scripts": {
+    "dev": "next dev --webpack",
+    "dev:turbopack": "next dev",
+    "dev:sentry": "next dev --webpack",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "predev": "npm run typegen",
+    "prebuild": "npm run typegen",
+    "typegen": "sanity schema extract --path=./sanity/extract.json && sanity typegen generate"
+  },
   "packageManager": "npm@10.9.4",
   "overrides": {
     "react": "$react",
@@ -27,7 +27,7 @@
     "@radix-ui/react-toast": "^1.2.15",
     "@sanity/image-url": "^2.1.1",
     "@sanity/vision": "^5.20.0",
-    "@sentry/nextjs": "^8.45.0",
+    "@sentry/nextjs": "^10.49.0",
     "@uiw/react-md-editor": "^4.0.11",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
