@@ -16,7 +16,11 @@ async function PostsSection({
   const query = (await searchParams).query;
   const params = { search: query || null };
 
-  const posts = await freshClient.fetch(STARTUPS_QUERY, params);
+  // FIX: Cast the result to StartupTypeCard[] to satisfy the component prop type
+  const posts = (await freshClient.fetch(
+    STARTUPS_QUERY,
+    params,
+  )) as StartupTypeCard[];
 
   return (
     <>
