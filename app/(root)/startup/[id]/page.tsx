@@ -16,9 +16,11 @@ import StartupCard, { StartupTypeCard } from "@/components/StartupCard";
 
 const md = markdownit();
 
-export const ppr = true; // خليه زي ما هو
+export const ppr = true;
 
-// 🔥 المكون الجديد اللي جواه كل الـ data fetching
+// 🔥 الحل اللي هيوقف الـ prerender error
+export const dynamic = "force-dynamic";
+
 async function StartupDetails({ id }: { id: string }) {
   const [post, playlistData] = await Promise.all([
     client.fetch(STARTUP_BY_ID_QUERY, { id }, { cache: "force-cache" }),
@@ -44,7 +46,6 @@ async function StartupDetails({ id }: { id: string }) {
       </section>
 
       <section className="section_container">
-        {/* صورة الـ Startup */}
         <div className="relative w-full aspect-video rounded-xl overflow-hidden">
           <Image
             src={post.image ?? ""}
@@ -71,7 +72,6 @@ async function StartupDetails({ id }: { id: string }) {
                   className="rounded-full drop-shadow-lg"
                 />
               )}
-
               <div>
                 <p className="text-20-medium">{post.author?.name}</p>
                 <p className="text-16-medium !text-black-300">
@@ -107,7 +107,6 @@ async function StartupDetails({ id }: { id: string }) {
           </div>
         )}
 
-        {/* View component محاطة بـ Suspense (كان موجود أصلاً) */}
         <Suspense fallback={<Skeleton className="view_skeleton" />}>
           <View id={id} />
         </Suspense>
@@ -116,7 +115,6 @@ async function StartupDetails({ id }: { id: string }) {
   );
 }
 
-// الصفحة الرئيسية
 const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
   const { id } = await params;
 
