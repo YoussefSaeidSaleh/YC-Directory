@@ -68,7 +68,7 @@ export const STARTUPS_BY_AUTHOR_QUERY =
   description,
   category,
   image,
-}`)
+}`);
 
 export const PLAYLIST_BY_SLUG_QUERY =
   defineQuery(`*[_type == "playlist" && slug.current == $slug][0]{
