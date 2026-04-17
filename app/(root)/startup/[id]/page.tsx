@@ -16,10 +16,7 @@ import StartupCard, { StartupTypeCard } from "@/components/StartupCard";
 
 const md = markdownit();
 
-export const ppr = true;
-
-// 🔥 الحل اللي هيوقف الـ prerender error
-export const dynamic = "force-dynamic";
+export const ppr = true;   // خليه موجود
 
 async function StartupDetails({ id }: { id: string }) {
   const [post, playlistData] = await Promise.all([
@@ -33,8 +30,7 @@ async function StartupDetails({ id }: { id: string }) {
 
   if (!post) return notFound();
 
-  const editorPosts = (playlistData?.select ??
-    []) as unknown as StartupTypeCard[];
+  const editorPosts = (playlistData?.select ?? []) as unknown as StartupTypeCard[];
   const parsedContent = md.render(post?.pitch || "");
 
   return (
