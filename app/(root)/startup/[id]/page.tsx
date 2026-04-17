@@ -16,65 +16,23 @@ import StartupCard, { StartupTypeCard } from "@/components/StartupCard";
 
 const md = markdownit();
 
-export const ppr = true;
+export const ppr = true; // خليه زي ما هو
 
-function StartupPageSkeleton() {
-  return (
-    <>
-      <section className="pink_container !min-h-[230px]">
-        <Skeleton className="h-6 w-32 mb-4" />
-        <Skeleton className="h-12 w-3/4 mb-4" />
-        <Skeleton className="h-6 w-1/2" />
-      </section>
-      <section className="section_container">
-        <Skeleton className="w-full aspect-video rounded-xl" />
-        <div className="space-y-5 mt-10 max-w-4xl mx-auto">
-          <div className="flex-between gap-5">
-            <div className="flex gap-2 items-center mb-3">
-              <Skeleton className="h-16 w-16 rounded-full" />
-              <div>
-                <Skeleton className="h-5 w-32 mb-2" />
-                <Skeleton className="h-4 w-24" />
-              </div>
-            </div>
-            <Skeleton className="h-6 w-24" />
-          </div>
-          <Skeleton className="h-8 w-48" />
-          <Skeleton className="h-64 w-full" />
-        </div>
-        <hr className="divider" />
-        <div className="max-w-4xl mx-auto">
-          <Skeleton className="h-8 w-48 mb-7" />
-          <div className="card_grid-sm">
-            {[...Array(3)].map((_, i) => (
-              <Skeleton key={i} className="h-64 w-full rounded-xl" />
-            ))}
-          </div>
-        </div>
-      </section>
-    </>
-  );
-}
-
-async function StartupPageContent({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = await params;
-
+// 🔥 المكون الجديد اللي جواه كل الـ data fetching
+async function StartupDetails({ id }: { id: string }) {
   const [post, playlistData] = await Promise.all([
     client.fetch(STARTUP_BY_ID_QUERY, { id }, { cache: "force-cache" }),
     client.fetch(
       PLAYLIST_BY_SLUG_QUERY,
       { slug: "editor-picks-new" },
-      { cache: "force-cache" }
+      { cache: "force-cache" },
     ),
   ]);
 
   if (!post) return notFound();
 
-  const editorPosts = (playlistData?.select ?? []) as unknown as StartupTypeCard[];
+  const editorPosts = (playlistData?.select ??
+    []) as unknown as StartupTypeCard[];
   const parsedContent = md.render(post?.pitch || "");
 
   return (
@@ -86,6 +44,7 @@ async function StartupPageContent({
       </section>
 
       <section className="section_container">
+        {/* صورة الـ Startup */}
         <div className="relative w-full aspect-video rounded-xl overflow-hidden">
           <Image
             src={post.image ?? ""}
@@ -140,7 +99,6 @@ async function StartupPageContent({
         {editorPosts.length > 0 && (
           <div className="max-w-4xl mx-auto">
             <p className="text-30-semibold">Editor Picks</p>
-
             <ul className="mt-7 card_grid-sm">
               {editorPosts.map((post: StartupTypeCard, i: number) => (
                 <StartupCard key={i} post={post} />
@@ -149,6 +107,7 @@ async function StartupPageContent({
           </div>
         )}
 
+        {/* View component محاطة بـ Suspense (كان موجود أصلاً) */}
         <Suspense fallback={<Skeleton className="view_skeleton" />}>
           <View id={id} />
         </Suspense>
@@ -157,14 +116,24 @@ async function StartupPageContent({
   );
 }
 
-export default function Page({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+// الصفحة الرئيسية
+const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
+  const { id } = await params;
+
   return (
-    <Suspense fallback={<StartupPageSkeleton />}>
-      <StartupPageContent params={params} />
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-center">
+            <Skeleton className="h-8 w-48 mx-auto mb-4" />
+            <Skeleton className="h-96 w-full max-w-4xl mx-auto rounded-xl" />
+          </div>
+        </div>
+      }
+    >
+      <StartupDetails id={id} />
     </Suspense>
   );
-}
+};
+
+export default Page;
