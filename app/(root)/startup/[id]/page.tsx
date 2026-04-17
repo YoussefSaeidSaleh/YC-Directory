@@ -56,7 +56,13 @@ function StartupPageSkeleton() {
   );
 }
 
-async function StartupPageContent({ id }: { id: string }) {
+async function StartupPageContent({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+
   const [post, playlistData] = await Promise.all([
     client.fetch(STARTUP_BY_ID_QUERY, { id }, { cache: "force-cache" }),
     client.fetch(
@@ -151,16 +157,14 @@ async function StartupPageContent({ id }: { id: string }) {
   );
 }
 
-export default async function Page({
+export default function Page({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const { id } = await params;
-
   return (
     <Suspense fallback={<StartupPageSkeleton />}>
-      <StartupPageContent id={id} />
+      <StartupPageContent params={params} />
     </Suspense>
   );
 }
