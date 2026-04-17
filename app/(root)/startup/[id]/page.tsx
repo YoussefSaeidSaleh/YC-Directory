@@ -1,5 +1,4 @@
 import { Suspense } from "react";
-import { headers } from "next/headers";           // ←←← أضفنا ده
 import { client } from "@/sanity/lib/client";
 import {
   PLAYLIST_BY_SLUG_QUERY,
@@ -9,7 +8,6 @@ import { notFound } from "next/navigation";
 import { formatDate } from "@/lib/utils";
 import Link from "next/link";
 import Image from "next/image";
-
 import markdownit from "markdown-it";
 import { Skeleton } from "@/components/ui/skeleton";
 import View from "@/components/View";
@@ -17,9 +15,6 @@ import StartupCard, { StartupTypeCard } from "@/components/StartupCard";
 
 const md = markdownit();
 
-export const ppr = true;
-
-// 🔥 الحل النهائي: نجبر الصفحة تكون Dynamic بدون تعارض مع cacheComponents
 async function StartupDetails({ id }: { id: string }) {
   const [post, playlistData] = await Promise.all([
     client.fetch(STARTUP_BY_ID_QUERY, { id }, { cache: "force-cache" }),
@@ -32,7 +27,8 @@ async function StartupDetails({ id }: { id: string }) {
 
   if (!post) return notFound();
 
-  const editorPosts = (playlistData?.select ?? []) as unknown as StartupTypeCard[];
+  const editorPosts = (playlistData?.select ??
+    []) as unknown as StartupTypeCard[];
   const parsedContent = md.render(post?.pitch || "");
 
   return (
@@ -44,16 +40,18 @@ async function StartupDetails({ id }: { id: string }) {
       </section>
 
       <section className="section_container">
-        <div className="relative w-full aspect-video rounded-xl overflow-hidden">
-          <Image
-            src={post.image ?? ""}
-            alt="thumbnail"
-            fill
-            className="object-cover"
-            priority
-            sizes="(max-width: 768px) 100vw, 1200px"
-          />
-        </div>
+        {post.image && (
+          <div className="relative w-full aspect-video rounded-xl overflow-hidden">
+            <Image
+              src={post.image}
+              alt="thumbnail"
+              fill
+              className="object-cover"
+              priority
+              sizes="(max-width: 768px) 100vw, 1200px"
+            />
+          </div>
+        )}
 
         <div className="space-y-5 mt-10 max-w-4xl mx-auto">
           <div className="flex-between gap-5">
@@ -113,12 +111,16 @@ async function StartupDetails({ id }: { id: string }) {
   );
 }
 
-const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
+async function StartupPageContent({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
   const { id } = await params;
+  return <StartupDetails id={id} />;
+}
 
-  // 🔥 هذا السطر يجبر Next.js يعامل الصفحة كـ Dynamic (بدون تعارض)
-  headers();
-
+export default function Page({ params }: { params: Promise<{ id: string }> }) {
   return (
     <Suspense
       fallback={
@@ -130,9 +132,7 @@ const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
         </div>
       }
     >
-      <StartupDetails id={id} />
+      <StartupPageContent params={params} />
     </Suspense>
   );
-};
-
-export default Page;
+}
