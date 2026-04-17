@@ -1,11 +1,14 @@
+import { Suspense } from "react";
 import StartupForm from "@/components/StartupFrom";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 
-const Page = async () => {
+async function ProtectedCreateStartup() {
   const session = await auth();
 
-  if (!session) redirect("/");
+  if (!session) {
+    redirect("/");
+  }
 
   return (
     <>
@@ -16,6 +19,18 @@ const Page = async () => {
       <StartupForm />
     </>
   );
-};
+}
 
-export default Page;
+export default function Page() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          Loading...
+        </div>
+      }
+    >
+      <ProtectedCreateStartup />
+    </Suspense>
+  );
+}
