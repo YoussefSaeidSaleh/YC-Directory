@@ -16,11 +16,10 @@ import StartupCard, { StartupTypeCard } from "@/components/StartupCard";
 
 const md = markdownit();
 
-export const ppr = true;
+export const ppr = true; 
 
-const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
-  const { id } = await params;
-
+//  المكون الجديد اللي جواه كل الـ data fetching
+async function StartupDetails({ id }: { id: string }) {
   const [post, playlistData] = await Promise.all([
     client.fetch(STARTUP_BY_ID_QUERY, { id }, { cache: "force-cache" }),
     client.fetch(
@@ -45,7 +44,7 @@ const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
       </section>
 
       <section className="section_container">
-        {/* ✨ تم تحسين الصورة باستخدام next/image مع priority للظهور الفوري */}
+        {/* صورة الـ Startup */}
         <div className="relative w-full aspect-video rounded-xl overflow-hidden">
           <Image
             src={post.image ?? ""}
@@ -100,7 +99,6 @@ const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
         {editorPosts.length > 0 && (
           <div className="max-w-4xl mx-auto">
             <p className="text-30-semibold">Editor Picks</p>
-
             <ul className="mt-7 card_grid-sm">
               {editorPosts.map((post: StartupTypeCard, i: number) => (
                 <StartupCard key={i} post={post} />
@@ -109,11 +107,32 @@ const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
           </div>
         )}
 
+        {/* View component محاطة بـ Suspense (كان موجود أصلاً) */}
         <Suspense fallback={<Skeleton className="view_skeleton" />}>
           <View id={id} />
         </Suspense>
       </section>
     </>
+  );
+}
+
+// الصفحة الرئيسية
+const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
+  const { id } = await params;
+
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-center">
+            <Skeleton className="h-8 w-48 mx-auto mb-4" />
+            <Skeleton className="h-96 w-full max-w-4xl mx-auto rounded-xl" />
+          </div>
+        </div>
+      }
+    >
+      <StartupDetails id={id} />
+    </Suspense>
   );
 };
 
