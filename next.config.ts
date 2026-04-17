@@ -3,9 +3,11 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   cacheComponents: true,
+
   typescript: {
     ignoreBuildErrors: true,
   },
+
   images: {
     dangerouslyAllowSVG: true,
     remotePatterns: [
@@ -15,6 +17,7 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+
   devIndicators: {
     position: "bottom-right",
   },
@@ -25,5 +28,4 @@ export default withSentryConfig(nextConfig, {
   project: "javascript-nextjs",
   silent: !process.env.CI,
   widenClientFileUpload: true,
-  // ✅ No webpack-specific options here
 });

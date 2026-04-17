@@ -1,6 +1,5 @@
 import { Suspense } from "react";
-import { connection } from "next/server";
-import { client, freshClient } from "@/sanity/lib/client";
+import { client } from "@/sanity/lib/client";
 import {
   PLAYLIST_BY_SLUG_QUERY,
   STARTUP_BY_ID_QUERY,
@@ -17,57 +16,49 @@ import StartupCard, { StartupTypeCard } from "@/components/StartupCard";
 
 const md = markdownit();
 
-async function getStartupById(id: string) {
-  return freshClient.fetch(STARTUP_BY_ID_QUERY, { id });
-}
+export const ppr = true;
 
-async function getEditorPicks(): Promise<StartupTypeCard[]> {
-  const result = await client.fetch(PLAYLIST_BY_SLUG_QUERY, {
-    slug: "editor-picks-new",
-  });
-
-  // result.select is the array — not result.select.editorPosts
-  // Cast to StartupTypeCard[] to align Sanity generated type with our component type
-  return (result?.select ?? []) as unknown as StartupTypeCard[];
-}
-
-const StartupPageContent = async ({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) => {
-  await connection();
-
+const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
   const { id } = await params;
 
-  const [post, editorPosts] = await Promise.all([
-    getStartupById(id),
-    getEditorPicks(),
+  const [post, playlistData] = await Promise.all([
+    client.fetch(STARTUP_BY_ID_QUERY, { id }, { cache: "force-cache" }),
+    client.fetch(
+      PLAYLIST_BY_SLUG_QUERY,
+      { slug: "editor-picks-new" },
+      { cache: "force-cache" },
+    ),
   ]);
 
   if (!post) return notFound();
 
+  const editorPosts = (playlistData?.select ??
+    []) as unknown as StartupTypeCard[];
   const parsedContent = md.render(post?.pitch || "");
 
   return (
     <>
       <section className="pink_container !min-h-[230px]">
         <p className="tag">{formatDate(post?._createdAt)}</p>
-
         <h1 className="heading">{post.title}</h1>
         <p className="sub-heading !max-w-5xl">{post.description}</p>
       </section>
 
       <section className="section_container">
-        <img
-          src={post.image ?? ""}
-          alt="thumbnail"
-          className="w-full h-auto rounded-xl"
-        />
+        {/* ✨ تم تحسين الصورة باستخدام next/image مع priority للظهور الفوري */}
+        <div className="relative w-full aspect-video rounded-xl overflow-hidden">
+          <Image
+            src={post.image ?? ""}
+            alt="thumbnail"
+            fill
+            className="object-cover"
+            priority
+            sizes="(max-width: 768px) 100vw, 1200px"
+          />
+        </div>
 
         <div className="space-y-5 mt-10 max-w-4xl mx-auto">
           <div className="flex-between gap-5">
-            {/* post.author is possibly null — guard with optional chaining */}
             <Link
               href={`/user/${post.author?._id}`}
               className="flex gap-2 items-center mb-3"
@@ -106,7 +97,7 @@ const StartupPageContent = async ({
 
         <hr className="divider" />
 
-        {editorPosts?.length > 0 && (
+        {editorPosts.length > 0 && (
           <div className="max-w-4xl mx-auto">
             <p className="text-30-semibold">Editor Picks</p>
 
@@ -119,18 +110,10 @@ const StartupPageContent = async ({
         )}
 
         <Suspense fallback={<Skeleton className="view_skeleton" />}>
-          <View id={id} initialViews={post.views ?? 0} />
+          <View id={id} />
         </Suspense>
       </section>
     </>
-  );
-};
-
-const Page = ({ params }: { params: Promise<{ id: string }> }) => {
-  return (
-    <Suspense fallback={<Skeleton className="view_skeleton" />}>
-      <StartupPageContent params={params} />
-    </Suspense>
   );
 };
 
