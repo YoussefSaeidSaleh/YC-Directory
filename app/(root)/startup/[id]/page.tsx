@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { headers } from "next/headers";           // ←←← أضفنا ده
 import { client } from "@/sanity/lib/client";
 import {
   PLAYLIST_BY_SLUG_QUERY,
@@ -16,8 +17,9 @@ import StartupCard, { StartupTypeCard } from "@/components/StartupCard";
 
 const md = markdownit();
 
-export const ppr = true;   // خليه موجود
+export const ppr = true;
 
+// 🔥 الحل النهائي: نجبر الصفحة تكون Dynamic بدون تعارض مع cacheComponents
 async function StartupDetails({ id }: { id: string }) {
   const [post, playlistData] = await Promise.all([
     client.fetch(STARTUP_BY_ID_QUERY, { id }, { cache: "force-cache" }),
@@ -113,6 +115,9 @@ async function StartupDetails({ id }: { id: string }) {
 
 const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
   const { id } = await params;
+
+  // 🔥 هذا السطر يجبر Next.js يعامل الصفحة كـ Dynamic (بدون تعارض)
+  headers();
 
   return (
     <Suspense
