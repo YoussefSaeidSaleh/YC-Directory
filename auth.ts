@@ -11,7 +11,11 @@ type GitHubProfile = {
 };
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  providers: [GitHub],
+  providers: [
+    GitHub({
+      issuer: "https://github.com/login/oauth",
+    }),
+  ],
   callbacks: {
     async signIn({ user: { name, email, image }, profile }) {
       const { id, login, bio } = profile as GitHubProfile;
@@ -36,6 +40,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
       return true;
     },
+
     async jwt({ token, account, profile }) {
       if (account && profile) {
         const user = await client
@@ -44,15 +49,19 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             id: profile?.id,
           });
 
-        token.id = user?._id;
+        if (user?._id) {
+          token.id = user._id;
+        }
       }
 
       return token;
     },
+
     async session({ session, token }) {
       if (token?.id) {
         session.user.id = token.id as string;
       }
+
       return session;
     },
   },
